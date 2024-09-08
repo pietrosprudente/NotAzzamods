@@ -137,8 +137,8 @@ namespace NotAzzamods
 
         private async Task DownloadPrefabJSON()
         {
-            string githubUrl = "https://raw.githubusercontent.com/username/repo/branch/filename.json"; // Replace with your JSON file URL
-            string fileName = "filename.json"; // Replace with the desired file name
+            string githubUrl = "https://raw.githubusercontent.com/lstwo/NotAzzamods/main/Data/NotAzzamods_prefabs.json";
+            string fileName = "NotAzzamods_prefabs.json";
 
             try
             {
