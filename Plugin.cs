@@ -13,6 +13,10 @@ using NotAzzamods.Hacks.Custom;
 using System.Reflection;
 using System.Collections;
 using NotAzzamods.Hacks.Custom.JobManager;
+using System.Threading.Tasks;
+using System.IO;
+using System.Net.Http;
+using System;
 
 namespace NotAzzamods
 {
@@ -129,6 +133,33 @@ namespace NotAzzamods
             }, null, config);
 
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+        }
+
+        private async Task DownloadPrefabJSON()
+        {
+            string githubUrl = "https://raw.githubusercontent.com/username/repo/branch/filename.json"; // Replace with your JSON file URL
+            string fileName = "filename.json"; // Replace with the desired file name
+
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    HttpResponseMessage response = await client.GetAsync(githubUrl);
+                    response.EnsureSuccessStatusCode();
+                    string jsonContent = await response.Content.ReadAsStringAsync();
+
+                    string exeFolderPath = AppDomain.CurrentDomain.BaseDirectory;
+                    string filePath = Path.Combine(exeFolderPath, fileName);
+
+                    File.WriteAllText(filePath, jsonContent);
+
+                    Console.WriteLine($"File saved to: {filePath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
         }
 
         public static Coroutine _StartCoroutine(IEnumerator routine)
