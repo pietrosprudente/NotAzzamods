@@ -1,37 +1,30 @@
-﻿using HawkNetworking;
-using Rewired;
+﻿using Newtonsoft.Json.Linq;
 using ShadowLib;
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.UI;
 using UniverseLib.UI;
 using UniverseLib.UI.Models;
-using UniverseLib.UI.ObjectPool;
 using UniverseLib.UI.Widgets.ScrollView;
 
 namespace NotAzzamods.UI.TabMenus
 {
     public class PropSpawnerTab : BaseTab
     {
-        public GameObject SelectedProp
+        public string SelectedProp
         {
             set
             {
                 selectedObject = value;
-                spawnBtn.ButtonText.text = $"Spawn Prop ({value.name.Replace(" (UnityEngine.GameObject)", "")})";
+                spawnBtn.ButtonText.text = $"Spawn Prop ({value})";
             }
         }
 
         private ScrollPool<PropCell> scrollPool;
-        private GameObject selectedObject;
+        private string selectedObject;
         private PropCellHandler cellHandler;
         private ButtonRef spawnBtn;
 
@@ -64,14 +57,41 @@ namespace NotAzzamods.UI.TabMenus
             spawnBtn = UIFactory.CreateButton(root, "SpawnBtn", "Spawn Prop");
             spawnBtn.OnClick = () =>
             {
-                var player = PlayerUtils.GetMyPlayer();
-                if (player == null || !selectedObject) return;
+                /*var player = PlayerUtils.GetMyPlayer();
+                if (player == null || selectedObject == "") return;
 
                 var character = player.GetPlayerCharacter();
                 var pos = character.GetPlayerPosition() + character.GetPlayerForward();
-                HawkNetworkManager.DefaultInstance.InstantiateNetworkPrefab(selectedObject, pos);
+                Debug.Log(selectedObject);
+                NetworkPrefab.SpawnNetworkPrefab("Game/Prefabs/Props/" + selectedObject, position: pos);*/
+
+                Plugin._StartCoroutine(coroutine());
             };
             UIFactory.SetLayoutElement(spawnBtn.GameObject, 0, 32, 9999, 0);
+        }
+
+        private IEnumerator coroutine()
+        {
+            foreach (var prop in cellHandler.propList)
+            {
+                try
+                {
+                    var player = PlayerUtils.GetMyPlayer();
+                    if (player == null || prop == "") continue;
+
+                    var character = player.GetPlayerCharacter();
+                    var pos = character.GetPlayerPosition() + character.GetPlayerForward();
+                    Debug.Log(selectedObject);
+                    NetworkPrefab.SpawnNetworkPrefab("Game/Prefabs/Props/" + selectedObject, position: pos);
+                } catch (Exception ex)
+                {
+                    Debug.LogError($"Error while instantiating prop \"{prop}\": {ex.Message}");
+                }
+
+                yield return null;
+            }
+
+            yield break;
         }
 
         public override void RefreshUI()
@@ -91,7 +111,7 @@ namespace NotAzzamods.UI.TabMenus
         public GameObject UIRoot { get; set; }
         public float DefaultHeight => 32;
 
-        public GameObject prop;
+        public string prop;
         public PropSpawnerTab parentTab;
 
         private Text text;
@@ -134,10 +154,10 @@ namespace NotAzzamods.UI.TabMenus
             UIRoot.SetActive(true);
         }
 
-        public void ConfigureCell(GameObject prop)
+        public void ConfigureCell(string prop)
         {
             this.prop = prop;
-            text.text = prop.ToString();
+            text.text = prop;
         }
     }
 
@@ -146,7 +166,7 @@ namespace NotAzzamods.UI.TabMenus
         public int ItemCount => propList.Count;
         public PropSpawnerTab parentTab;
 
-        private List<GameObject> propList = new();
+        public List<string> propList = new();
 
         public PropCellHandler(PropSpawnerTab parentTab)
         {
@@ -173,16 +193,44 @@ namespace NotAzzamods.UI.TabMenus
 
         public void Refresh()
         {
+            Plugin._StartCoroutine(RefreshCoroutine());
+        }
+
+        public IEnumerator RefreshCoroutine()
+        {
             propList.Clear();
 
-            foreach(var behavior in UnityEngine.Object.FindObjectsOfType<HawkNetworkBehaviour>())
+            string jsonData = "";
+
+            try
             {
-                var obj = behavior.gameObject;
-                if(obj && !obj.name.Contains("(Clone)"))
-                {
-                    propList.Add(obj);
-                }
+                jsonData = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/NotAzzamods_prefabs.json");
             }
+            catch(Exception e)
+            {
+                Plugin.LogSource.LogError("Could not load prefab locations: " + e.Message);
+            }
+
+            if (jsonData == "") yield break;
+
+            foreach (var array in LoadPrefabData(jsonData))
+            {
+                propList.AddRange(array);
+            }
+        }
+
+        public static string[][] LoadPrefabData(string jsonData)
+        {
+            var jsonObject = JObject.Parse(jsonData);
+            var prefabArrayList = new List<string[]>();
+
+            foreach (var property in jsonObject.Properties())
+            {
+                var prefabArray = property.Value.ToObject<string[]>();
+                prefabArrayList.Add(prefabArray);
+            }
+
+            return prefabArrayList.ToArray();
         }
     }
 }

@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Net.Http;
 using System;
+using BepInEx.Logging;
 
 namespace NotAzzamods
 {
@@ -24,6 +25,8 @@ namespace NotAzzamods
     public class Plugin : BaseUnityPlugin
     {
         public const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
+
+        public static ManualLogSource LogSource { get { return Instance.Logger; } }
 
         public static PlayerController playerController;
         public static PlayerCharacter playerCharacter;
@@ -46,6 +49,8 @@ namespace NotAzzamods
 
         private void Awake()
         {
+            DownloadPrefabJSON();
+
             WobblyServerUtilCompat.Init();
 
             Instance = this;
@@ -138,7 +143,7 @@ namespace NotAzzamods
         private async Task DownloadPrefabJSON()
         {
             string githubUrl = "https://raw.githubusercontent.com/lstwo/NotAzzamods/main/Data/NotAzzamods_prefabs.json";
-            string fileName = "NotAzzamods_prefabs.json";
+            string fileName = AppDomain.CurrentDomain.BaseDirectory + "/NotAzzamods_prefabs.json";
 
             try
             {
@@ -153,12 +158,12 @@ namespace NotAzzamods
 
                     File.WriteAllText(filePath, jsonContent);
 
-                    Console.WriteLine($"File saved to: {filePath}");
+                    Plugin.LogSource.LogMessage($"File saved to: {filePath}");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
+                Plugin.LogSource.LogError($"An error occurred: {ex.Message}");
             }
         }
 

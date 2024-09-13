@@ -105,7 +105,7 @@ namespace NotAzzamods.UI.TabMenus
                     newRoot.SetActive(false);
                 } catch (Exception e)
                 {
-                    Debug.LogException(e);
+                    Plugin.LogSource.LogError(e);
                 }
             }
         }

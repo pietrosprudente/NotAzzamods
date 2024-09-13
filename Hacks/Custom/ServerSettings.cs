@@ -196,7 +196,7 @@ namespace NotAzzamods.Hacks.Custom
             {
                 if (!enableVehicles) return false;
 
-                Debug.Log("ksgndf");
+                Plugin.LogSource.LogMessage("ksgndf");
 
                 var t = typeof(TelephoneBox);
 

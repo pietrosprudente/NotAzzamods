@@ -28,7 +28,7 @@ namespace NotAzzamods.Hacks.Paid
 
                 var obj = gameObjects[dropdown.value];
                 var pos = Player.Character.GetPlayerPosition() + Player.Character.GetPlayerForward();
-                Debug.Log(pos + "; " + Player.Character.GetPlayerPosition());
+                Plugin.LogSource.LogMessage(pos + "; " + Player.Character.GetPlayerPosition());
                 HawkNetworkManager.DefaultInstance.InstantiateNetworkPrefab(obj, pos);
             };
 

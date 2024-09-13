@@ -29,7 +29,7 @@ namespace NotAzzamods.Hacks.Custom
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError("Error while Constructing Job Manager " + manager.GetType().Name + ": " + e.Message + e.StackTrace);
+                    Plugin.LogSource.LogError("Error while Constructing Job Manager " + manager.GetType().Name + ": " + e.Message + e.StackTrace);
                 }
             }
 
@@ -54,7 +54,7 @@ namespace NotAzzamods.Hacks.Custom
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError("Error while Refreshing Job Manager: " + e.Message + e.StackTrace);
+                    Plugin.LogSource.LogError("Error while Refreshing Job Manager: " + e.Message + e.StackTrace);
                 }
             }
         }
