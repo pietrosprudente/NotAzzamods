@@ -49,7 +49,7 @@ namespace NotAzzamods
 
         private void Awake()
         {
-            DownloadPrefabJSON();
+            _=DownloadPrefabJSON();
 
             WobblyServerUtilCompat.Init();
 
@@ -66,7 +66,7 @@ namespace NotAzzamods
             PlayerHacksTab.Hacks.Add(new ControllerManager());
             PlayerHacksTab.Hacks.Add(new TeleportAllPlayers());
             PlayerHacksTab.Hacks.Add(new SmitePlayer());
-            PlayerHacksTab.Hacks.Add(new Hacks.Paid.PropSpawner());
+            PlayerHacksTab.Hacks.Add(new PropSpawner());
             //PlayerHacksTab.Hacks.Add(new JobHacks());
             //PlayerHacksTab.Hacks.Add(new CrashGame()); // !!! REMOVE BEFORE RELEASE !!!
 
@@ -92,6 +92,8 @@ namespace NotAzzamods
             ExtraHacksTab.Hacks.Add(new Gambling());
             ExtraHacksTab.Hacks.Add(new BuyUnlimitedHouses());
             ExtraHacksTab.Hacks.Add(new FirstPerson());
+            ExtraHacksTab.Hacks.Add(new JetpackMultiplier());
+            ExtraHacksTab.Hacks.Add(new BananaBackpackManager());
 
             PropSpawnerTab = new();
 
@@ -140,7 +142,7 @@ namespace NotAzzamods
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }
 
-        private async Task DownloadPrefabJSON()
+        public static async Task DownloadPrefabJSON()
         {
             string githubUrl = "https://raw.githubusercontent.com/lstwo/NotAzzamods/main/Data/NotAzzamods_prefabs.json";
             string fileName = AppDomain.CurrentDomain.BaseDirectory + "/NotAzzamods_prefabs.json";
@@ -157,13 +159,11 @@ namespace NotAzzamods
                     string filePath = Path.Combine(exeFolderPath, fileName);
 
                     File.WriteAllText(filePath, jsonContent);
-
-                    Plugin.LogSource.LogMessage($"File saved to: {filePath}");
                 }
             }
             catch (Exception ex)
             {
-                Plugin.LogSource.LogError($"An error occurred: {ex.Message}");
+                LogSource.LogError($"An error occurred: {ex.Message}");
             }
         }
 

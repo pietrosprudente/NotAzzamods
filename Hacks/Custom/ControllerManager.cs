@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NotAzzamods.Hacks.Custom
 {
@@ -13,20 +14,28 @@ namespace NotAzzamods.Hacks.Custom
 
         public override string Description => "";
 
+        private Toggle clothingAbilitiesToggle;
+        private Toggle allowRespawningToggle;
+
         public override void ConstructUI(GameObject root)
         {
             var ui = new HacksUIHelper(root);
 
             ui.AddSpacer(6);
 
-            ui.CreateToggle("ClothingAbilitiesToggle", "Enable Clothing Abilities", SetClothingAbilitiesEnabled, true);
-            ui.CreateToggle("AllowRespawning", "Allow Respawning", (b) => Player.Controller.SetAllowedToRespawn(this, b));
+            clothingAbilitiesToggle = ui.CreateToggle("ClothingAbilitiesToggle", "Enable Clothing Abilities", SetClothingAbilitiesEnabled, true);
+            allowRespawningToggle = ui.CreateToggle("AllowRespawning", "Allow Respawning", (b) => Player.Controller.SetAllowedToRespawn(this, b));
 
             ui.AddSpacer(6);
         }
 
         public override void RefreshUI()
         {
+            if(Player != null)
+            {
+                clothingAbilitiesToggle.isOn = (bool)typeof(PlayerController).GetField("bServerAllowedCustomsClothingAbilities", Plugin.Flags).GetValue(Player.Controller);
+                allowRespawningToggle.isOn = Player.Controller.IsAllowedToRespawn();
+            }
         }
 
         public override void Update()

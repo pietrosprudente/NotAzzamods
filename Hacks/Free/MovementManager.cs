@@ -20,6 +20,9 @@ namespace NotAzzamods.Hacks.Free
         public override string Name => "Movement Manager";
         public override string Description => "The Managing Movement";
 
+        private HacksUIHelper.LIBTrio moveSpeedLib, jumpHeightLib;
+        private Toggle noclipToggle;
+
         public override void ConstructUI(GameObject root)
         {
             new Harmony("NotAzza.Movement").PatchAll(typeof(MovementPatches));
@@ -28,13 +31,13 @@ namespace NotAzzamods.Hacks.Free
 
             ui.AddSpacer(6);
 
-            var moveSpeedLib = ui.CreateLIBTrio("Set Move Speed", "SetMoveSpeed", "Move Speed");
+            moveSpeedLib = ui.CreateLIBTrio("Set Move Speed", "SetMoveSpeed", "Move Speed");
             moveSpeedLib.Button.OnClick = () => SetMoveSpeed(float.Parse(moveSpeedLib.Input.Text));
             moveSpeedLib.Input.Component.characterValidation = InputField.CharacterValidation.Decimal;
 
             ui.AddSpacer(6);
 
-            var jumpHeightLib = ui.CreateLIBTrio("Set Jump Height", "SetJumpHeight", "Jump Height");
+            jumpHeightLib = ui.CreateLIBTrio("Set Jump Height", "SetJumpHeight", "Jump Height");
             jumpHeightLib.Button.OnClick = () => SetJumpHeight(float.Parse(jumpHeightLib.Input.Text));
             jumpHeightLib.Input.Component.characterValidation = InputField.CharacterValidation.Decimal;
 
@@ -48,7 +51,7 @@ namespace NotAzzamods.Hacks.Free
 
             ui.AddSpacer(6);
 
-            ui.CreateToggle("Noclip", "Enable Noclip (Fly Mode)", SetNoclipEnabled);
+            noclipToggle = ui.CreateToggle("Noclip", "Enable Noclip (Fly Mode)", SetNoclipEnabled);
 
             ui.AddSpacer(6);
         }
@@ -68,6 +71,12 @@ namespace NotAzzamods.Hacks.Free
 
         public override void RefreshUI()
         {
+            if(Player != null)
+            {
+                moveSpeedLib.Input.Text = Player.CharacterMovement.GetSpeedMultiplier().ToString();
+                jumpHeightLib.Input.Text = Player.CharacterMovement.GetJumpMultiplier().ToString();
+                noclipToggle.isOn = Player.CharacterMovement.IsNoClipEnabled();
+            }
         }
 
 

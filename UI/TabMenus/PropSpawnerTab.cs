@@ -4,7 +4,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
+using Technie.PhysicsCreator;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
 using UniverseLib.UI;
 using UniverseLib.UI.Models;
@@ -57,46 +60,80 @@ namespace NotAzzamods.UI.TabMenus
             spawnBtn = UIFactory.CreateButton(root, "SpawnBtn", "Spawn Prop");
             spawnBtn.OnClick = () =>
             {
-                /*var player = PlayerUtils.GetMyPlayer();
+                var player = PlayerUtils.GetMyPlayer();
                 if (player == null || selectedObject == "") return;
 
                 var character = player.GetPlayerCharacter();
                 var pos = character.GetPlayerPosition() + character.GetPlayerForward();
-                Debug.Log(selectedObject);
-                NetworkPrefab.SpawnNetworkPrefab("Game/Prefabs/Props/" + selectedObject, position: pos);*/
+                Plugin.LogSource.LogMessage(selectedObject);
+                NetworkPrefab.SpawnNetworkPrefab($"Game/Prefabs/Props/{selectedObject}.prefab", position: pos);
 
-                Plugin._StartCoroutine(coroutine());
+                //Plugin._StartCoroutine(InstantiateAllProp());
             };
             UIFactory.SetLayoutElement(spawnBtn.GameObject, 0, 32, 9999, 0);
         }
 
-        private IEnumerator coroutine()
+        private void InstantiateSingleProp(string prop)
+        {
+            var player = PlayerUtils.GetMyPlayer();
+            if (player == null || prop == "" || prop == null) return;
+
+            var character = player.GetPlayerCharacter();
+            var pos = character.GetPlayerPosition() + character.GetPlayerForward();
+
+            TrySpawnPrefab(prop, pos);
+        }
+
+        private IEnumerator InstantiateAllProp()
         {
             foreach (var prop in cellHandler.propList)
             {
                 try
                 {
-                    var player = PlayerUtils.GetMyPlayer();
-                    if (player == null || prop == "") continue;
-
-                    var character = player.GetPlayerCharacter();
-                    var pos = character.GetPlayerPosition() + character.GetPlayerForward();
-                    Debug.Log(selectedObject);
-                    NetworkPrefab.SpawnNetworkPrefab("Game/Prefabs/Props/" + selectedObject, position: pos);
-                } catch (Exception ex)
+                    InstantiateSingleProp(prop);
+                } 
+                catch (Exception ex)
                 {
                     Debug.LogError($"Error while instantiating prop \"{prop}\": {ex.Message}");
                 }
 
-                yield return null;
+                yield return new WaitForSeconds(.05f);
             }
 
             yield break;
         }
 
+        private bool TrySpawnPrefab(string address, Vector3 position)
+        {
+            bool worked = false;
+
+            try
+            {
+                string newAddress = $"Game/Prefabs/Props/{address.Trim()}.prefab";
+                Plugin.LogSource.LogMessage($"Trying {newAddress}");
+                NetworkPrefab.SpawnNetworkPrefab(newAddress, position: position);
+                worked = true;
+            }
+            catch (Exception a)
+            {
+                string newAddress = $"Assets/Content/Game/Prefabs/Props/{address.Trim()}.prefab";
+                Plugin.LogSource.LogMessage($"\"Game/Prefabs/Props/{address.Trim()}.prefab\" FAILED: Trying \"{newAddress}\"");
+                NetworkPrefab.SpawnNetworkPrefab(newAddress, position: position);
+                worked = true;
+            }
+
+            return worked;
+        }
+
         public override void RefreshUI()
         {
             base.RefreshUI();
+            _ = RefreshAsync();
+        }
+
+        public async Task RefreshAsync()
+        {
+            await Plugin.DownloadPrefabJSON();
 
             cellHandler.Refresh();
         }

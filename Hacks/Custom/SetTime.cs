@@ -16,6 +16,7 @@ namespace NotAzzamods.Hacks.Custom
         public override string Description => "";
 
         private InputFieldRef timeSpeedInput;
+        private Text dayNumLabel;
 
         public override void ConstructUI(GameObject root)
         {
@@ -24,7 +25,7 @@ namespace NotAzzamods.Hacks.Custom
             ui.AddSpacer(6);
 
             var timeCatLabel = ui.CreateLabel("<b>Time of Day Settings (Might NOT fully work in Multiplayer)</b>");
-            var dayNumLabel = ui.CreateLabel("Current Day: ???");
+            dayNumLabel = ui.CreateLabel("");
 
             ui.AddSpacer(6);
 
@@ -50,6 +51,15 @@ namespace NotAzzamods.Hacks.Custom
 
         public override void Update()
         {
+            var dnc = DayNightCycle.Instance;
+
+            if(dnc != null)
+            {
+                var time = dnc.GetTimeString();
+                var day = dnc.GetDayNum();
+
+                dayNumLabel.text = $"Time: {time}, Day: {day}";
+            }
         }
 
         public void SetTimeOfDaySpeed(float speed)

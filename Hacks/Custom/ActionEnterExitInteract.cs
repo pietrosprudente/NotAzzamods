@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NotAzzamods.Hacks.Custom
 {
@@ -17,6 +18,10 @@ namespace NotAzzamods.Hacks.Custom
 
         private GameObject root;
 
+        private Toggle knockoutToggle;
+        private Toggle lockToggle;
+        private Toggle interactableToggle;
+
         public override void ConstructUI(GameObject root)
         {
             this.root = root;
@@ -24,7 +29,7 @@ namespace NotAzzamods.Hacks.Custom
 
             ui.AddSpacer(6);
 
-            ui.CreateToggle("knockoutToggle", "Should knockout if going fast", (b) => action.SetShouldKnockoutbPlayerIfGoingFast(b), true);
+            knockoutToggle = ui.CreateToggle("knockoutToggle", "Should knockout if going fast", (b) => action.SetShouldKnockoutbPlayerIfGoingFast(b), true);
 
             ui.AddSpacer(6);
 
@@ -52,6 +57,10 @@ namespace NotAzzamods.Hacks.Custom
                 {
                     this.action = (global::ActionEnterExitInteract) action;
                 }
+
+                knockoutToggle.isOn = (bool)typeof(global::ActionEnterExitInteract).GetField("bKnockoutPlayerIfGoingFast", Plugin.Flags).GetValue(this.action);
+                lockToggle.isOn = this.action.IsLocked(Player.Controller);
+                interactableToggle.isOn = (bool)typeof(global::ActionEnterExitInteract).GetField("bInteractable", Plugin.Flags).GetValue(this.action);
 
                 root.SetActive(true);
             }

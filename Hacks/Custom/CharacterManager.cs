@@ -24,6 +24,8 @@ namespace NotAzzamods.Hacks.Custom
         private Color playerColor;
         private Slider playerColorSliderR, playerColorSliderG, playerColorSliderB;
 
+        private Toggle playerCutoffToggle;
+
         public override void ConstructUI(GameObject root)
         {
             new Harmony("lstwo.NotAzzamods.CharacterManager").PatchAll(typeof(HarmonyPatches));
