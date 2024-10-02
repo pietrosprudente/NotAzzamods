@@ -262,11 +262,17 @@ namespace NotAzzamods.Hacks.Paid
         {
             RefreshWeatherDatas();
             RefreshDropdown();
-            RefreshInputs(weatherDatas[setWeatherLDB.Dropdown.value]);
+
+            var index = setWeatherLDB.Dropdown.value;
+            var data = index < weatherDatas.Length && index != -1 ? weatherDatas[index] : null;
+
+            RefreshInputs(data);
         }
 
         private void RefreshWeatherDatas()
         {
+            if (!WeatherSystem.Instance) weatherDatas = new WeatherData[0];
+
             weatherDatas = WeatherSystem.Instance.GetAllWeatherData();
         }
 
@@ -290,6 +296,8 @@ namespace NotAzzamods.Hacks.Paid
 
         private void RefreshInputs(WeatherData data)
         {
+            if(data == null) return;
+
             weatherTitleInput.Text = data.data.title;
             fogDistanceInput.Text = "" + data.data.fogEndDistance;
             transitionTimeInput.Text = "" + data.data.transitionTime;
