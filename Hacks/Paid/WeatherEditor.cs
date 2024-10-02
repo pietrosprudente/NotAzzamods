@@ -271,7 +271,11 @@ namespace NotAzzamods.Hacks.Paid
 
         private void RefreshWeatherDatas()
         {
-            if (!WeatherSystem.Instance) weatherDatas = new WeatherData[0];
+            if (!WeatherSystem.Instance)
+            {
+                weatherDatas = new WeatherData[0];
+                return;
+            }
 
             weatherDatas = WeatherSystem.Instance.GetAllWeatherData();
         }
