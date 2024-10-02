@@ -294,6 +294,8 @@ namespace NotAzzamods.Hacks.Paid
         {
             RefreshDropdownValues();
 
+            if (!WeatherSystem.InstanceExists) return;
+
             setWeatherLDB.Dropdown.value = weatherDatas.ToList().IndexOf(WeatherSystem.Instance.GetCurrentWeatherData());
             setWeatherLDB.Dropdown.RefreshShownValue();
         }
