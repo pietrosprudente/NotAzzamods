@@ -1,4 +1,5 @@
-﻿using ShadowLib;
+﻿using NotAzzamods.Keybinds;
+using ShadowLib;
 using System;
 using UnityEngine;
 using UnityEngine.Events;
@@ -11,6 +12,8 @@ namespace NotAzzamods
     public class HacksUIHelper : UIHelper
     {
         public static Color ButtonColor { get; private set; } = new Color(.063f, .094f, .129f);
+        public static Color BGColor1 { get; private set; } = new Color(.129f, .145f, .176f);
+        public static Color BGColor2 { get; private set; } = new Color(.114f, .129f, .161f);
 
         private GameObject root;
 
@@ -98,6 +101,10 @@ namespace NotAzzamods
 
             var button = UIFactory.CreateButton(group, text + " Button", text, color);
             button.OnClick = onClick;
+
+            var buttonKeybinder = button.GameObject.AddComponent<ButtonKeybinder>();
+            buttonKeybinder.button = button;
+
             UIFactory.SetLayoutElement(button.GameObject, buttonWidth, height, 0, 0);
 
             return button;
@@ -201,6 +208,10 @@ namespace NotAzzamods
 
             var button1 = UIFactory.CreateButton(group, buttonText1 + " Button", buttonText1, ButtonColor);
             button1.OnClick = onClick1;
+
+            var buttonKeybinder = button1.GameObject.AddComponent<ButtonKeybinder>();
+            buttonKeybinder.button = button1;
+
             UIFactory.SetLayoutElement(button1.GameObject, button1Width, height, 0, 0);
 
             var spacer2 = UIFactory.CreateUIObject("spacer", group);
@@ -208,6 +219,10 @@ namespace NotAzzamods
 
             var button2 = UIFactory.CreateButton(group, buttonText2 + " Button", buttonText2, ButtonColor);
             button2.OnClick = onClick2;
+
+            var buttonKeybinder2 = button2.GameObject.AddComponent<ButtonKeybinder>();
+            buttonKeybinder2.button = button2;
+
             UIFactory.SetLayoutElement(button2.GameObject, button2Width, height, 0, 0);
 
             return new(_label, button1, button2);
@@ -242,6 +257,10 @@ namespace NotAzzamods
 
             var button = UIFactory.CreateButton(group, buttonText + " Button", buttonText, ButtonColor);
             button.OnClick = onClick;
+
+            var buttonKeybinder = button.GameObject.AddComponent<ButtonKeybinder>();
+            buttonKeybinder.button = button;
+
             UIFactory.SetLayoutElement(button.GameObject, buttonWidth, height, 0, 0);
 
             return new(_label, button);

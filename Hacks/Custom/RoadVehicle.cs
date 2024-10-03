@@ -99,6 +99,8 @@ namespace NotAzzamods.Hacks.Custom
 
         public override void RefreshUI()
         {
+            if (Player == null) return;
+
             var a = Player.Controller.GetPlayerControllerInteractor().GetEnteredAction();
             if (a != null && a is global::ActionEnterExitInteract action && action.TryGetComponent<PlayerVehicleRoad>(out var vehicle))
             {

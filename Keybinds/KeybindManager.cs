@@ -13,6 +13,11 @@ namespace NotAzzamods.Keybinds
 
         void Update()
         {
+            if (Plugin.UiBase == null || Plugin.UiBase.Enabled)
+            {
+                return;
+            }
+
             foreach (var keybind in Keybinds)
             {
                 if(keybind.IsPressed())
@@ -26,6 +31,11 @@ namespace NotAzzamods.Keybinds
         {
             Keybinds.Add(keybind);
             return keybind;
+        }
+
+        public static void RemoveKeybind(Keybinder.Keybind keybind)
+        {
+            Keybinds.Remove(keybind);
         }
     }
 }

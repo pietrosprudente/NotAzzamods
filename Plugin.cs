@@ -18,6 +18,8 @@ using System.IO;
 using System.Net.Http;
 using System;
 using BepInEx.Logging;
+using NotAzzamods.UI.Keybinds;
+using NotAzzamods.Keybinds;
 
 namespace NotAzzamods
 {
@@ -35,6 +37,7 @@ namespace NotAzzamods
 
         public static UIBase UiBase { get; private set; }
         public static MainPanel MainPanel { get; private set; }
+        public static KeybindPanel KeybindPanel { get; private set; }
 
         public static List<BaseTab> TabMenus { get; private set; } = new();
         public static List<BaseHack> Hacks { get; private set; } = new();
@@ -46,6 +49,8 @@ namespace NotAzzamods
         public static HacksTab ExtraHacksTab { get; private set; }
 
         public static PropSpawnerTab PropSpawnerTab { get; private set; }
+
+        public static KeybindManager KeybindManager { get; private set; }
 
         private void Awake()
         {
@@ -123,6 +128,8 @@ namespace NotAzzamods
             new WeatherResearcherJobManager();
             new WoodCutterJobManager();
 
+            KeybindManager = gameObject.AddComponent<KeybindManager>();
+
             float startupDelay = 1f;
             UniverseLibConfig config = new()
             {
@@ -135,7 +142,9 @@ namespace NotAzzamods
                 UiBase = UniversalUI.RegisterUI("lstwo.NotAzza", null);
 
                 MainPanel = new(UiBase);
+                KeybindPanel = new(UiBase);
 
+                KeybindPanel.Enabled = false;
                 UiBase.Enabled = false;
             }, null, config);
 
@@ -177,7 +186,11 @@ namespace NotAzzamods
             if(Input.GetKeyDown(KeyCode.F2))
             {
                 UiBase.Enabled = !UiBase.Enabled;
-                MainPanel.Refresh();
+
+                if(UiBase.Enabled)
+                {
+                    MainPanel.Refresh();
+                }
             }
 
             foreach(var hack in Hacks)

@@ -49,7 +49,9 @@ namespace NotAzzamods.Hacks.Custom
 
         public override void RefreshUI()
         {
-            if(Player.Controller.GetPlayerControllerInteractor().GetEnteredAction() != null)
+            if (Player == null) return;
+
+            if (Player.Controller.GetPlayerControllerInteractor().GetEnteredAction() != null)
             {
                 var action = Player.Controller.GetPlayerControllerInteractor().GetEnteredAction();
 

@@ -71,6 +71,8 @@ namespace NotAzzamods.Hacks.Custom
 
         public override void RefreshUI()
         {
+            if (Player == null) return;
+
             var colors = playerColorApplyBtn.GameObject.GetComponent<Button>().colors;
             var color = Player.Character.GetPlayerCharacterCustomize().GetCharacterColor();
 

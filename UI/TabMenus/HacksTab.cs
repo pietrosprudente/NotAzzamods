@@ -69,7 +69,7 @@ namespace NotAzzamods.UI.TabMenus
 
                     new ShadowLib.UIHelper(root).AddSpacer(6);
 
-                    var bgColor = b ? new Color(.129f, .145f, .176f) : new Color(.114f, .129f, .161f);
+                    var bgColor = b ? HacksUIHelper.BGColor1 : HacksUIHelper.BGColor2;
 
                     var fullHackRoot = UIFactory.CreateVerticalGroup(root, hack.Name, false, false, true, true, bgColor: bgColor);
                     UIFactory.SetLayoutElement(fullHackRoot);
