@@ -127,8 +127,12 @@ namespace NotAzzamods.UI.TabMenus
 
         public override void RefreshUI()
         {
-            base.RefreshUI();
             _ = RefreshAsync();
+        }
+
+        public override void UpdateUI()
+        {
+
         }
 
         public async Task RefreshAsync()

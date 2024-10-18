@@ -10,19 +10,32 @@ using UniverseLib.UI;
 
 namespace NotAzzamods.UI.TabMenus
 {
-    public class BaseTab
+    public abstract class BaseTab
     {
         public BaseTab()
         {
             Plugin.TabMenus.Add(this);
         }
 
+        /// <summary>
+        /// The name showed on the tab button.
+        /// </summary>
         public string Name;
 
+        /// <summary>
+        /// The ui helper for the content of the Tab.
+        /// </summary>
         protected HacksUIHelper ui;
 
-        private GameObject root;
+        /// <summary>
+        /// The root of the tab content.
+        /// </summary>
+        protected GameObject root;
 
+        /// <summary>
+        /// Called when UI gets constructed. Use this to create your UI.
+        /// </summary>
+        /// <param name="root"></param>
         public virtual void ConstructUI(GameObject root)
         {
             this.root = root;
@@ -31,6 +44,11 @@ namespace NotAzzamods.UI.TabMenus
             root.SetActive(false);
         }
 
+        /// <summary>
+        /// Override to change how to tabs button looks.
+        /// </summary>
+        /// <param name="ui">The UI Helper for the tab button layout group.</param>
+        /// <returns>The button GameObject</returns>
         public virtual GameObject ConstructTabButton(HacksUIHelper ui)
         {
             var btn = ui.CreateButton( "<b>" + Name + "</b>  ", () =>
@@ -42,9 +60,14 @@ namespace NotAzzamods.UI.TabMenus
             return btn.GameObject;
         }
 
+        /// <summary>
+        /// Used to set the current Tab content active or not active.
+        /// </summary>
+        /// <param name="active">Wether the content should be shown or not.</param>
         public virtual void SetTabActive(bool active)
         {
             root.SetActive(active);
+
             if(active)
             {
                 Plugin.MainPanel.CurrentTab = this;
@@ -58,14 +81,14 @@ namespace NotAzzamods.UI.TabMenus
             }
         }
 
-        public virtual void UpdateUI()
-        {
+        /// <summary>
+        /// Idk never gets called
+        /// </summary>
+        public abstract void UpdateUI();
 
-        }
-
-        public virtual void RefreshUI()
-        {
-
-        }
+        /// <summary>
+        /// Called when the tab gets opened. Use this to refresh your tab content.
+        /// </summary>
+        public abstract void RefreshUI();
     }
 }

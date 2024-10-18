@@ -26,6 +26,7 @@ namespace NotAzzamods
         {
             var group = UIFactory.CreateHorizontalGroup(root, name, true, true, true, true);
             UIFactory.SetLayoutElement(group);
+            group.AddComponent<InputFieldKeybinder>();
 
             InputFieldRef inputFieldRef = UIFactory.CreateInputField(group, name, placeholder);
             UIFactory.SetLayoutElement(inputFieldRef.GameObject, 256, 32, 0, 0);

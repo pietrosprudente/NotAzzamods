@@ -10,6 +10,9 @@ namespace NotAzzamods.Keybinds
 {
     public abstract class Keybinder : MonoBehaviour, IPointerClickHandler
     {
+        /// <summary>
+        /// List of keybinds on this keybinder.
+        /// </summary>
         public List<Keybind> keybinds = new();
 
         public void OnPointerClick(PointerEventData eventData)
@@ -20,7 +23,7 @@ namespace NotAzzamods.Keybinds
             }
         }
 
-        void Update()
+        private void Update()
         {
             foreach(var keybind in keybinds)
             {
@@ -31,8 +34,19 @@ namespace NotAzzamods.Keybinds
             }
         }
 
-        public abstract void OnRightClicked();
+        /// <summary>
+        /// Opens the Keybind Panel when right clicked.
+        /// </summary>
+        public virtual void OnRightClicked()
+        {
+            Plugin.KeybindPanel.Enabled = true;
+            Plugin.KeybindPanel.Keybinder = this;
+        }
 
+        /// <summary>
+        /// Use this to create a keybind
+        /// </summary>
+        /// <returns>The new empty keybind</returns>
         public abstract Keybind CreateKeybind();
 
         public abstract class Keybind
@@ -47,6 +61,10 @@ namespace NotAzzamods.Keybinds
                 KeybindManager.AddKeybind(this);
             }
 
+            /// <summary>
+            /// Checks if this Keybind is being pressed.
+            /// </summary>
+            /// <returns></returns>
             public virtual bool IsPressed()
             {
                 if(!this.primaryKey.HasValue)
@@ -58,7 +76,6 @@ namespace NotAzzamods.Keybinds
 
                 if (!Input.GetKeyDown(primaryKey))
                 {
-                    Debug.Log("no primary");
                     return false;
                 }
 
@@ -66,18 +83,21 @@ namespace NotAzzamods.Keybinds
                 {
                     if(!Input.GetKey(key))
                     {
-                    Debug.Log("no secondary");
                         return false;
                     }
                 }
 
-                Debug.Log("yessir");
-
                 return true;
             }
 
+            /// <summary>
+            /// Whether the keyboard input is being recorded to set the Keybind.
+            /// </summary>
             public bool isCapturing = false;
 
+            /// <summary>
+            /// Just starts detecting the Keys to set the Keybind.
+            /// </summary>
             public virtual void StartDetectKeybind()
             {
                 primaryKey = null;
@@ -85,11 +105,17 @@ namespace NotAzzamods.Keybinds
                 isCapturing = true;
             }
 
+            /// <summary>
+            /// Just stops detecting the Keys to set the Keybind.
+            /// </summary>
             public virtual void StopDetectKeybind()
             {
                 isCapturing = false;
             }
 
+            /// <summary>
+            /// Only override if absolutley necessary. Detects Keyboard Input to set the keys for the Keybind.
+            /// </summary>
             public virtual void DetectKeybinds()
             {
                 KeyCode? primaryKey = null;
@@ -129,10 +155,20 @@ namespace NotAzzamods.Keybinds
                 return false;
             }
 
+            /// <summary>
+            /// Called when the keybind has been pressed. Use to complete your action.
+            /// </summary>
             public abstract void OnPressed();
 
+            /// <summary>
+            /// Called when a new scroll item for the Keybind Panel needs to be created.
+            /// </summary>
+            /// <param name="root">The Scroll Root to child your keybind object to</param>
             public abstract void CreateScrollItem(GameObject root);
 
+            /// <summary>
+            /// Used to refresh the keybind item in the Keybind Panel's scroll view. Use this to set the keys in your item to match the keybind's.
+            /// </summary>
             public abstract void RefreshScrollItem();
         }
     }

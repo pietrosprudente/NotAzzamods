@@ -10,9 +10,9 @@ using UniverseLib.UI.Models;
 
 namespace NotAzzamods.Keybinds
 {
-    public class ButtonKeybinder : Keybinder
+    public class InputFieldKeybinder : Keybinder
     {
-        public ButtonRef button;
+        public InputFieldRef input;
 
         public override void OnRightClicked()
         {
@@ -22,29 +22,31 @@ namespace NotAzzamods.Keybinds
 
         public override Keybind CreateKeybind()
         {
-            var keybind = new ButtonKeybind(this);
+            var keybind = new InputFieldKeybind(this);
             keybinds.Add(keybind);
             return keybind;
         }
 
-        public class ButtonKeybind : Keybind
+        public class InputFieldKeybind : Keybind
         {
-            public ButtonKeybind(Keybinder keybinder) : base(keybinder)
+            public InputFieldKeybind(Keybinder keybinder) : base(keybinder)
             {
 
             }
 
             public override void OnPressed()
             {
-                var buttonKeybinder = keybinder as ButtonKeybinder;
+                var inputKeybinder = keybinder as InputFieldKeybinder;
 
-                if (buttonKeybinder != null)
+                if (inputKeybinder != null)
                 {
-                    buttonKeybinder.button.OnClick();
+                    inputKeybinder.input.Text = inputString;
                 }
             }
 
             private Text text;
+            private string inputString = "";
+            private InputFieldRef input;
 
             public override void CreateScrollItem(GameObject root)
             {
@@ -65,6 +67,19 @@ namespace NotAzzamods.Keybinds
                 UIFactory.SetLayoutElement(text.gameObject, 9999, 48, 9999, 0);
 
                 UIFactory.SetLayoutElement(UIFactory.CreateUIObject("spacer", root), 0, 6, 9999, 0);
+
+                var inputGroup = UIFactory.CreateHorizontalGroup(root, "inputGroup", true, false, false, true);
+                UIFactory.SetLayoutElement(inputGroup, 0, 0, 9999, 9999);
+
+                UIFactory.SetLayoutElement(UIFactory.CreateUIObject("spacer", inputGroup), 6, 0, 0, 9999);
+
+                input = UIFactory.CreateInputField(inputGroup, "input", "Input for keybind");
+                input.OnValueChanged += (text) => inputString = text;
+                UIFactory.SetLayoutElement(input.GameObject, 0, 32, 9999, 0);
+
+                UIFactory.SetLayoutElement(UIFactory.CreateUIObject("spacer", inputGroup), 6, 0, 0, 9999);
+
+                UIFactory.SetLayoutElement(UIFactory.CreateUIObject("spacer", root), 0, 6, 9999, 0);
             }
 
             public override void RefreshScrollItem()
@@ -74,6 +89,7 @@ namespace NotAzzamods.Keybinds
                     return;
                 }
 
+                input.Component.characterValidation = ((InputFieldKeybinder)keybinder).input.Component.characterValidation;
                 text.text = string.Join(" + ", Array.ConvertAll(secondaryKeys.ToArray(), key => key.ToString())) + " + " + ((KeyCode)primaryKey).ToString();
             }
 

@@ -21,6 +21,10 @@
 
   <ItemGroup>
 
+	  <Reference Include="CustomItems">
+		  <HintPath>lib\CustomItems.dll</HintPath>
+	  </Reference>
+	  
 	  <Reference Include="Rewired.Core">
 		  <HintPath>lib\Rewired_Core.dll</HintPath>
 	  </Reference>

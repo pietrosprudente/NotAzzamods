@@ -10,9 +10,9 @@ using UniverseLib.UI.Models;
 
 namespace NotAzzamods.Keybinds
 {
-    public class ButtonKeybinder : Keybinder
+    public class SliderKeybinder : Keybinder
     {
-        public ButtonRef button;
+        public Slider slider;
 
         public override void OnRightClicked()
         {
@@ -22,29 +22,31 @@ namespace NotAzzamods.Keybinds
 
         public override Keybind CreateKeybind()
         {
-            var keybind = new ButtonKeybind(this);
+            var keybind = new SliderKeybind(this);
             keybinds.Add(keybind);
             return keybind;
         }
 
-        public class ButtonKeybind : Keybind
+        public class SliderKeybind : Keybind
         {
-            public ButtonKeybind(Keybinder keybinder) : base(keybinder)
+            public SliderKeybind(Keybinder keybinder) : base(keybinder)
             {
 
             }
 
             public override void OnPressed()
             {
-                var buttonKeybinder = keybinder as ButtonKeybinder;
+                var sliderKeybinder = keybinder as SliderKeybinder;
 
-                if (buttonKeybinder != null)
+                if (sliderKeybinder != null)
                 {
-                    buttonKeybinder.button.OnClick();
+                    sliderKeybinder.slider.value = value;
                 }
             }
 
             private Text text;
+            private float value = 0;
+            private Slider slider;
 
             public override void CreateScrollItem(GameObject root)
             {
@@ -65,6 +67,19 @@ namespace NotAzzamods.Keybinds
                 UIFactory.SetLayoutElement(text.gameObject, 9999, 48, 9999, 0);
 
                 UIFactory.SetLayoutElement(UIFactory.CreateUIObject("spacer", root), 0, 6, 9999, 0);
+
+                var inputGroup = UIFactory.CreateHorizontalGroup(root, "inputGroup", true, false, false, true);
+                UIFactory.SetLayoutElement(inputGroup, 0, 0, 9999, 9999);
+
+                UIFactory.SetLayoutElement(UIFactory.CreateUIObject("spacer", inputGroup), 6, 0, 0, 9999);
+
+                var sliderObj = UIFactory.CreateSlider(inputGroup, "slider", out slider);
+                slider.onValueChanged.AddListener((value) => this.value = value);
+                UIFactory.SetLayoutElement(sliderObj, 0, 32, 9999, 0);
+
+                UIFactory.SetLayoutElement(UIFactory.CreateUIObject("spacer", inputGroup), 6, 0, 0, 9999);
+
+                UIFactory.SetLayoutElement(UIFactory.CreateUIObject("spacer", root), 0, 6, 9999, 0);
             }
 
             public override void RefreshScrollItem()
@@ -74,6 +89,8 @@ namespace NotAzzamods.Keybinds
                     return;
                 }
 
+                slider.maxValue = ((SliderKeybinder)keybinder).slider.maxValue;
+                slider.minValue = ((SliderKeybinder)keybinder).slider.minValue;
                 text.text = string.Join(" + ", Array.ConvertAll(secondaryKeys.ToArray(), key => key.ToString())) + " + " + ((KeyCode)primaryKey).ToString();
             }
 

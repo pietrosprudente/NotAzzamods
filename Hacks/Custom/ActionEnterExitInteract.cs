@@ -14,6 +14,74 @@ namespace NotAzzamods.Hacks.Custom
 
         public override string Description => "";
 
+
+        public bool ShouldKnockoutIfGoingFast
+        {
+            get
+            {
+                if(action)
+                {
+                    var type = typeof(global::ActionEnterExitInteract);
+                    var field = type.GetField("bKnockoutPlayerIfGoingFast", Plugin.Flags);
+
+                    return (bool)field.GetValue(action);
+                }
+
+                return false;
+            }
+            set
+            {
+                if(action)
+                {
+                    action.SetShouldKnockoutbPlayerIfGoingFast(value);
+                }
+            }
+        }
+
+        public bool Locked
+        {
+            get
+            {
+                if(action && Player != null)
+                {
+                    return action.IsLocked(Player.Controller);
+                }
+
+                return false;
+            }
+            set
+            {
+                if(action)
+                {
+                    action.SetLocked(value);
+                }
+            }
+        }
+
+        public bool Interactable
+        {
+            get
+            {
+                if (action)
+                {
+                    var type = typeof(global::ActionEnterExitInteract);
+                    var field = type.GetField("bInteractable", Plugin.Flags);
+
+                    return (bool) field.GetValue(action);
+                }
+
+                return false;
+            }
+            set
+            {
+                if (action)
+                {
+                    action.SetInteractable(value);
+                }
+            }
+        }
+
+
         private global::ActionEnterExitInteract action;
 
         private GameObject root;
@@ -29,7 +97,7 @@ namespace NotAzzamods.Hacks.Custom
 
             ui.AddSpacer(6);
 
-            knockoutToggle = ui.CreateToggle("knockoutToggle", "Should knockout if going fast", (b) => action.SetShouldKnockoutbPlayerIfGoingFast(b), true);
+            knockoutToggle = ui.CreateToggle("knockoutToggle", "Should knockout if going fast", (b) => ShouldKnockoutIfGoingFast = b, true);
 
             ui.AddSpacer(6);
 
@@ -41,28 +109,27 @@ namespace NotAzzamods.Hacks.Custom
 
             ui.AddSpacer(6);
 
-            ui.CreateToggle("lock", "Is vehicle locked", (b) => action.SetLocked(b));
-            ui.CreateToggle("interactable", "Is vehicle interactable", (b) => action.SetInteractable(b));
+            ui.CreateToggle("lock", "Is vehicle locked", (b) => Locked = b);
+            ui.CreateToggle("interactable", "Is vehicle interactable", (b) => Interactable = b);
 
             ui.AddSpacer(6);
         }
 
         public override void RefreshUI()
         {
-            if (Player == null) return;
+            if (Player == null || !Player.Controller || !Player.Controller.GetPlayerControllerInteractor()) return;
 
-            if (Player.Controller.GetPlayerControllerInteractor().GetEnteredAction() != null)
+            var action = Player.Controller.GetPlayerControllerInteractor().GetEnteredAction();
+            if (action != null)
             {
-                var action = Player.Controller.GetPlayerControllerInteractor().GetEnteredAction();
-
                 if(action is global::ActionEnterExitInteract)
                 {
                     this.action = (global::ActionEnterExitInteract) action;
                 }
 
-                knockoutToggle.isOn = (bool)typeof(global::ActionEnterExitInteract).GetField("bKnockoutPlayerIfGoingFast", Plugin.Flags).GetValue(this.action);
-                lockToggle.isOn = this.action.IsLocked(Player.Controller);
-                interactableToggle.isOn = (bool)typeof(global::ActionEnterExitInteract).GetField("bInteractable", Plugin.Flags).GetValue(this.action);
+                knockoutToggle.isOn = ShouldKnockoutIfGoingFast;
+                lockToggle.isOn = Locked;
+                interactableToggle.isOn = Interactable;
 
                 root.SetActive(true);
             }
@@ -72,8 +139,6 @@ namespace NotAzzamods.Hacks.Custom
             }
         }
 
-        public override void Update()
-        {
-        }
+        public override void Update() { }
     }
 }

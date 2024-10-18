@@ -20,6 +20,7 @@ using System;
 using BepInEx.Logging;
 using NotAzzamods.UI.Keybinds;
 using NotAzzamods.Keybinds;
+using NotAzzamods.CustomItems;
 
 namespace NotAzzamods
 {
@@ -27,7 +28,7 @@ namespace NotAzzamods
     public class Plugin : BaseUnityPlugin
     {
         public const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
-
+        
         public static ManualLogSource LogSource { get { return Instance.Logger; } }
 
         public static PlayerController playerController;
@@ -49,12 +50,16 @@ namespace NotAzzamods
         public static HacksTab ExtraHacksTab { get; private set; }
 
         public static PropSpawnerTab PropSpawnerTab { get; private set; }
+        public static CustomItemsTab CustomItemsTab { get; private set; }
 
         public static KeybindManager KeybindManager { get; private set; }
+
+        public static List<CustomItemPack> CustomItemPacks { get; private set; } = new();
 
         private void Awake()
         {
             _=DownloadPrefabJSON();
+            StartCoroutine(InitCustomItems());
 
             WobblyServerUtilCompat.Init();
 
@@ -72,8 +77,9 @@ namespace NotAzzamods
             PlayerHacksTab.Hacks.Add(new TeleportAllPlayers());
             PlayerHacksTab.Hacks.Add(new SmitePlayer());
             PlayerHacksTab.Hacks.Add(new PropSpawner());
+            PlayerHacksTab.Hacks.Add(new FrogMods());
             //PlayerHacksTab.Hacks.Add(new JobHacks());
-            //PlayerHacksTab.Hacks.Add(new CrashGame()); // !!! REMOVE BEFORE RELEASE !!!
+            PlayerHacksTab.Hacks.Add(new CrashGame()); // !!! REMOVE BEFORE RELEASE !!!
 
             VehicleHacksTab = new("Vehicle Mods");
             VehicleHacksTab.Hacks.Add(new Hacks.Custom.ActionEnterExitInteract());
@@ -99,8 +105,10 @@ namespace NotAzzamods
             ExtraHacksTab.Hacks.Add(new FirstPerson());
             ExtraHacksTab.Hacks.Add(new JetpackMultiplier());
             ExtraHacksTab.Hacks.Add(new BananaBackpackManager());
+            ExtraHacksTab.Hacks.Add(new RealisticCarCrashes());
 
             PropSpawnerTab = new();
+            CustomItemsTab = new();
 
             GameInstance.onAssignedPlayerController += AssignPlayerController;
             GameInstance.onAssignedPlayerCharacter += AssignPlayerCharacter;
@@ -149,6 +157,25 @@ namespace NotAzzamods
             }, null, config);
 
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+        }
+
+        public static IEnumerator InitCustomItems()
+        {
+            var path = AppDomain.CurrentDomain.BaseDirectory + "/CustomItems/";
+
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+                yield break;
+            }
+
+            var itemDirectories = Directory.GetDirectories(path);
+
+            foreach(var itemDirectory in itemDirectories)
+            {
+                Debug.Log(itemDirectory);
+                CustomItemPacks.Add(new(itemDirectory));
+            }
         }
 
         public static async Task DownloadPrefabJSON()

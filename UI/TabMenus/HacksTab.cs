@@ -112,8 +112,6 @@ namespace NotAzzamods.UI.TabMenus
 
         public override void RefreshUI()
         {
-            base.RefreshUI();
-
             playerDropdown.gameObject.SetActive(enablePlayerDropdown);
 
             if(enablePlayerDropdown && GameInstance.InstanceExists && GameInstance.Instance.GetPlayerControllers() != null)
@@ -160,6 +158,11 @@ namespace NotAzzamods.UI.TabMenus
                     Debug.LogException(e);
                 }
             }
+        }
+
+        public override void UpdateUI()
+        {
+
         }
     }
 
