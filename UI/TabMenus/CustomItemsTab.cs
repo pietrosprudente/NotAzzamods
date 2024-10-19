@@ -163,7 +163,7 @@ namespace NotAzzamods.UI.TabMenus
 
         public void SetCell(CustomItemCell cell, int index)
         {
-            if(index < itemList.Count)
+            if(index < itemList.Count / 2)
             {
                 cell.parentTab = parentTab;
                 cell.ConfigureCell(itemList[index]);
@@ -179,9 +179,10 @@ namespace NotAzzamods.UI.TabMenus
         {
             foreach(var pack in Plugin.CustomItemPacks)
             {
-                Debug.Log(pack.path);
+                Debug.Log(pack);
                 itemList.AddRange(pack.items);
             }
+            Debug.Log(itemList);
         }
     }
 }
