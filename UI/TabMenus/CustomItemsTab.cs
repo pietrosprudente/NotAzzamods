@@ -1,38 +1,29 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using BepInEx.Configuration;
+using CustomItems;
 using NotAzzamods.CustomItems;
 using ShadowLib;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using Technie.PhysicsCreator;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
 using UniverseLib.UI;
 using UniverseLib.UI.Models;
 using UniverseLib.UI.Widgets.ScrollView;
-using CustomItems;
-using HawkNetworking;
 
 namespace NotAzzamods.UI.TabMenus
 {
     public class CustomItemsTab : BaseTab
     {
-        public CustomItem SelectedProp
-        {
-            set
-            {
-                selectedObject = value;
-                spawnBtn.ButtonText.text = $"Spawn Item ({value.itemName})";
-            }
-        }
-
-        private ScrollPool<CustomItemCell> scrollPool;
-        private CustomItem selectedObject;
-        private CustomItemCellHandler cellHandler;
+        private GridLayoutGroup gridView;
+        private GameObject gridViewObj;
         private ButtonRef spawnBtn;
+        private ButtonRef refreshBtn;
+
+        private List<CustomItem> items = new();
+        private List<GameObject> itemCells = new();
 
         public CustomItemsTab()
         {
@@ -43,146 +34,102 @@ namespace NotAzzamods.UI.TabMenus
         {
             base.ConstructUI(root);
 
-            UIFactory.SetLayoutElement(UIFactory.CreateUIObject("spacer", root), 0, 5, 9999, 0);
-
-            var scrollGroup = UIFactory.CreateHorizontalGroup(root, "group", true, false, true, true, bgColor: new(0, 0, 0, 0));
-            UIFactory.SetLayoutElement(scrollGroup, 0, 620, 9999, 0);
-
-            UIFactory.SetLayoutElement(UIFactory.CreateUIObject("spacer", scrollGroup), 5, 0, 0, 9999);
-
-            scrollPool = UIFactory.CreateScrollPool<CustomItemCell>(scrollGroup, "scroll", out var scrollRoot, out var scrollContent, new Color(.114f, .129f, .161f));
-            UIFactory.SetLayoutElement(scrollRoot, 0, 0, 9999, 9999);
-            UIFactory.SetLayoutElement(scrollContent, 0, 0, 9999, 9999);
-
-            cellHandler = new(this);
-            scrollPool.Initialize(cellHandler);
-
-            UIFactory.SetLayoutElement(UIFactory.CreateUIObject("spacer", scrollGroup), 5, 0, 0, 9999);
-            UIFactory.SetLayoutElement(UIFactory.CreateUIObject("spacer", root), 0, 5, 9999, 0);
-
-            spawnBtn = UIFactory.CreateButton(root, "SpawnBtn", "Spawn Prop");
-            spawnBtn.OnClick = () =>
-            {
-                var player = PlayerUtils.GetMyPlayer();
-                if (player == null || selectedObject == null) return;
-
-                var character = player.GetPlayerCharacter();
-                var pos = character.GetPlayerPosition() + character.GetPlayerForward();
-                Plugin.LogSource.LogMessage(selectedObject);
-
-                NetworkPrefab.SpawnNetworkPrefab(selectedObject.gameObject, position: pos);
-            };
-            UIFactory.SetLayoutElement(spawnBtn.GameObject, 0, 32, 9999, 0);
+            gridViewObj = UIFactory.CreateGridGroup(root, "gridView", new(268, 412), new(6, 6), new(0, 0, 0, 0));
+            gridView = gridViewObj.GetComponent<GridLayoutGroup>();
         }
 
         public override void RefreshUI()
         {
-            cellHandler.Refresh();
+            items.Clear();
+
+            foreach(var cell in itemCells)
+            {
+                UnityEngine.Object.Destroy(cell);
+            }
+
+            foreach (var pack in Plugin.CustomItemPacks)
+            {
+                items.AddRange(pack.items);
+
+                foreach(var item in pack.items)
+                {
+                    var cell = new CustomItemCell();
+                    itemCells.Add(cell.ConstructUI(gridViewObj));
+
+                    cell.Item = item;
+                    cell.ItemPack = pack;
+                }
+            }
         }
 
         public override void UpdateUI()
         {
-
-        }
-    }
-
-    public class CustomItemCell : ICell
-    {
-        private bool enabled;
-
-        public bool Enabled => enabled;
-        public RectTransform Rect { get; set; }
-        public GameObject UIRoot { get; set; }
-        public float DefaultHeight => 32;
-
-        public CustomItem prop;
-        public CustomItemsTab parentTab;
-
-        private Text text;
-        private ButtonRef button;
-
-        public GameObject CreateContent(GameObject parent)
-        {
-            UIRoot = UIFactory.CreateUIObject("ItemCell", parent);
-            UIFactory.SetLayoutElement(UIRoot, 0, 32, 9999, 0);
-            Rect = UIRoot.GetComponent<RectTransform>();
-
-            button = UIFactory.CreateButton(UIRoot, "button", "");
-            button.OnClick = OnCellButtonClicked;
-
-            RectTransform buttonRect = button.GameObject.GetComponent<RectTransform>();
-            buttonRect.anchorMin = new Vector2(0, 0);
-            buttonRect.anchorMax = new Vector2(1, 1);
-            buttonRect.offsetMin = Vector2.zero;
-            buttonRect.offsetMax = Vector2.zero;
-
-            text = button.ButtonText;
-
-            return UIRoot;
         }
 
-        public void OnCellButtonClicked()
+        public class CustomItemCell
         {
-            parentTab.SelectedProp = prop;
-        }
-
-        public void Disable()
-        {
-            enabled = false;
-            UIRoot.SetActive(false);
-        }
-
-        public void Enable()
-        {
-            enabled = true;
-            UIRoot.SetActive(true);
-        }
-
-        public void ConfigureCell(CustomItem prop)
-        {
-            this.prop = prop;
-            text.text = prop.itemName;
-        }
-    }
-
-    public class CustomItemCellHandler : ICellPoolDataSource<CustomItemCell>
-    {
-        public int ItemCount => itemList.Count;
-        public CustomItemsTab parentTab;
-
-        public List<CustomItem> itemList = new();
-
-        public CustomItemCellHandler(CustomItemsTab parentTab)
-        {
-            this.parentTab = parentTab;
-        }
-
-        public void OnCellBorrowed(CustomItemCell cell)
-        {
-        }
-
-        public void SetCell(CustomItemCell cell, int index)
-        {
-            if(index < itemList.Count / 2)
+            public CustomItemPack ItemPack
             {
-                cell.parentTab = parentTab;
-                cell.ConfigureCell(itemList[index]);
-                cell.Enable();
+                set
+                {
+                    itemPack = value;
+                    itemPackLabel.text = $"<b>{value.packName}</b>";
+                }
             }
-            else
-            {
-                cell.Disable();
-            }
-        }
 
-        public void Refresh()
-        {
-            foreach(var pack in Plugin.CustomItemPacks)
+            public CustomItem Item
             {
-                Debug.Log(pack);
-                itemList.AddRange(pack.items);
+                set
+                {
+                    item = value;
+                    nameLabel.text = $"<b>{value.itemName}</b>";
+                    descriptionText.text = value.itemDescription;
+                    image.sprite = value.itemSprite;
+                }
             }
-            Debug.Log(itemList);
+
+            private CustomItem item;
+            private CustomItemPack itemPack;
+            private Text nameLabel;
+            private Text itemPackLabel;
+            private Text descriptionText;
+            private Image image;
+            private ButtonRef spawnBtn;
+
+            public GameObject ConstructUI(GameObject root)
+            {
+                var layoutRoot = UIFactory.CreateVerticalGroup(root, "layout", false, false, true, true, 6, new(6, 6, 6, 6), HacksUIHelper.BGColor2, TextAnchor.UpperCenter);
+                UIFactory.SetLayoutElement(layoutRoot, 0, 0, 9999, 9999);
+
+                itemPackLabel = UIFactory.CreateLabel(layoutRoot, "itemPackLabel", "Item Pack", TextAnchor.UpperCenter);
+                UIFactory.SetLayoutElement(itemPackLabel.gameObject, 0, 16, 9999, 0);
+
+                image = UIFactory.CreateUIObject("image", layoutRoot).AddComponent<Image>();
+                UIFactory.SetLayoutElement(image.gameObject, 256, 256, 0, 0);
+
+                nameLabel = UIFactory.CreateLabel(layoutRoot, "nameLabel", "Item Name", TextAnchor.UpperCenter);
+                UIFactory.SetLayoutElement(nameLabel.gameObject, 0, 16, 9999, 0);
+
+                descriptionText = UIFactory.CreateLabel(layoutRoot, "descriptionText", "Item Description", TextAnchor.UpperCenter);
+                UIFactory.SetLayoutElement(descriptionText.gameObject, 0, 64, 9999, 0);
+
+                spawnBtn = UIFactory.CreateButton(layoutRoot, "spawnBtn", "Spawn Item", HacksUIHelper.ButtonColor);
+                spawnBtn.OnClick = () =>
+                {
+                    var player = PlayerUtils.GetMyPlayer();
+
+                    if (player != null && item != null)
+                    {
+                        var character = player.GetPlayerCharacter();
+                        var pos = character.GetPlayerPosition() + character.GetPlayerForward();
+
+                        NetworkPrefab.SpawnNetworkPrefab(item.gameObject, position: pos);
+                    }
+                };
+                UIFactory.SetLayoutElement(spawnBtn.GameObject, 0, 24, 9999, 0);
+
+                return layoutRoot;
+            }
         }
     }
 }

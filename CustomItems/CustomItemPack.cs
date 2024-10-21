@@ -16,6 +16,7 @@ namespace NotAzzamods.CustomItems
     public class CustomItemPack
     {
         public string path;
+        public string packName;
         public List<CustomItem> items = new();
         public AssetBundle assetBundle;
         public Assembly assembly;
@@ -27,6 +28,8 @@ namespace NotAzzamods.CustomItems
             var jsonPath = $"{path}/data.json";
             var json = File.ReadAllText(jsonPath);
             var data = JsonUtility.FromJson<JsonData>(json);
+
+            packName = data.name;
 
             if (data.assemblyPath != "")
             {
@@ -56,6 +59,7 @@ namespace NotAzzamods.CustomItems
 
         public class JsonData
         {
+            public string name;
             public string assetPath;
             public string assemblyPath;
         }
