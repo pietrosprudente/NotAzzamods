@@ -21,6 +21,7 @@ using BepInEx.Logging;
 using NotAzzamods.UI.Keybinds;
 using NotAzzamods.Keybinds;
 using NotAzzamods.CustomItems;
+using BepInEx.Configuration;
 
 namespace NotAzzamods
 {
@@ -29,7 +30,8 @@ namespace NotAzzamods
     {
         public const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
         
-        public static ManualLogSource LogSource { get { return Instance.Logger; } }
+        public static ManualLogSource LogSource { get => Instance.Logger; }
+        public static ConfigFile ConfigFile { get => Instance.Config; }
 
         public static PlayerController playerController;
         public static PlayerCharacter playerCharacter;
@@ -48,9 +50,9 @@ namespace NotAzzamods
         public static HacksTab VehicleHacksTab { get; private set; }
         public static HacksTab SaveHacksTab { get; private set; }
         public static HacksTab ExtraHacksTab { get; private set; }
-
         public static PropSpawnerTab PropSpawnerTab { get; private set; }
         public static CustomItemsTab CustomItemsTab { get; private set; }
+        public static SettingsTab SettingsTab { get; private set; }
 
         public static KeybindManager KeybindManager { get; private set; }
 
@@ -100,15 +102,18 @@ namespace NotAzzamods
 
             ExtraHacksTab = new("Extra Mods", false);
             ExtraHacksTab.Hacks.Add(new Debt());
-            ExtraHacksTab.Hacks.Add(new Gambling());
+            //ExtraHacksTab.Hacks.Add(new Gambling());
             ExtraHacksTab.Hacks.Add(new BuyUnlimitedHouses());
             ExtraHacksTab.Hacks.Add(new FirstPerson());
             ExtraHacksTab.Hacks.Add(new JetpackMultiplier());
             ExtraHacksTab.Hacks.Add(new BananaBackpackManager());
             ExtraHacksTab.Hacks.Add(new RealisticCarCrashes());
+            ExtraHacksTab.Hacks.Add(new CyberpunkMode());
+            ExtraHacksTab.Hacks.Add(new AccuratePhysicsMode());
 
             PropSpawnerTab = new();
             CustomItemsTab = new();
+            SettingsTab = new();
 
             GameInstance.onAssignedPlayerController += AssignPlayerController;
             GameInstance.onAssignedPlayerCharacter += AssignPlayerCharacter;

@@ -17,8 +17,8 @@ namespace NotAzzamods.UI
 
         public override string Name => "<b><i>Not</i> AzzaMods</b>";
 
-        public override int MinWidth => 1280;
-        public override int MinHeight => 700;
+        public override int MinWidth => 640;
+        public override int MinHeight => 450;
 
         public override Vector2 DefaultAnchorMin => default;
         public override Vector2 DefaultAnchorMax => default;

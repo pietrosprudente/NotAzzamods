@@ -53,7 +53,7 @@ namespace NotAzzamods.UI.TabMenus
         {
             var btn = ui.CreateButton( "<b>" + Name + "</b>  ", () =>
             {
-                SetTabActive(!root.activeSelf);
+                SetTabActive(true);
             });
             UIFactory.SetLayoutElement(btn.GameObject, minHeight: 32);
 
