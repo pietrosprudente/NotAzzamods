@@ -8,3 +8,15 @@ Requires [ShadowLib](https://github.com/lstwo/ShadowLib/releases), [BepInEx 5.X]
 
 > [!NOTE]
 > NotAzzamods only supports BepInEx 5.X for Mono so far
+
+# Compatibility Chart
+
+| **Mod**           | **Wobbly Server Util** | **Wobbly's Fav**       |
+| ----------------: | :--------------------: | :--------------------: |
+| **Compatibility** | ✅Fully compatible    | 🟨 Most Functions Work |
+
+# FAQ
+
+- **Does it have a server player count changer?**
+
+  No, just use [Larger Lobbies](https://www.nexusmods.com/wobblylife/mods/8) for that.
