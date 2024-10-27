@@ -8,3 +8,8 @@ Requires [ShadowLib](https://github.com/lstwo/ShadowLib/releases), [BepInEx 5.X]
 
 > [!NOTE]
 > NotAzzamods only supports BepInEx 5.X for Mono so far
+
+# FAQ
+
+- **Does it have a server player count changer?**
+  No, just use Larger Lobbies for that.
