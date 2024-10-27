@@ -12,4 +12,5 @@ Requires [ShadowLib](https://github.com/lstwo/ShadowLib/releases), [BepInEx 5.X]
 # FAQ
 
 - **Does it have a server player count changer?**
+
   No, just use Larger Lobbies for that.
