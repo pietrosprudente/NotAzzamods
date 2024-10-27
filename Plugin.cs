@@ -113,7 +113,7 @@ namespace NotAzzamods
 
             PropSpawnerTab = new();
             CustomItemsTab = new();
-            SettingsTab = new();
+            //SettingsTab = new();
 
             GameInstance.onAssignedPlayerController += AssignPlayerController;
             GameInstance.onAssignedPlayerCharacter += AssignPlayerCharacter;
